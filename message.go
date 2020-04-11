@@ -67,6 +67,18 @@ type VideoMessage struct {
 	Duration  uint   `json:"duration,omitempty"`
 }
 
+type Location struct {
+	Latitude float64 `json:"lat"`
+	Longitude float64 `json:"lon"`
+}
+
+// LocationMessage structure
+type LocationMessage struct {
+	TextMessage
+	Media	string `json:"media"`
+	Location	`json:"location"`
+}
+
 // MessageType for viber messaging
 type MessageType string
 
@@ -140,6 +152,20 @@ func (v *Viber) NewPictureMessage(msg string, url string, thumbURL string) *Pict
 	}
 }
 
+// NewLocationMessage for viber
+func (v *Viber) NewLocationMessage(lat float64, lon float64) *LocationMessage {
+	return &LocationMessage{
+		TextMessage: TextMessage{
+			Sender: v.Sender,
+			Type:   TypeLocationMessage,
+		},
+		Location: Location{
+			Latitude: lat,
+			Longitude: lon,
+		},
+	}
+}
+
 // SendTextMessage to reciever, returns message token
 func (v *Viber) SendTextMessage(receiver string, msg string) (msgToken uint64, err error) {
 	return v.SendMessage(receiver, v.NewTextMessage(msg))
@@ -153,6 +179,11 @@ func (v *Viber) SendURLMessage(receiver string, msg string, url string) (msgToke
 // SendPictureMessage to receiver, returns message token
 func (v *Viber) SendPictureMessage(receiver string, msg string, url string, thumbURL string) (token uint64, err error) {
 	return v.SendMessage(receiver, v.NewPictureMessage(msg, url, thumbURL))
+}
+
+// SendLocationMessage to easily send url messages as global sender
+func (v *Viber) SendLocationMessage(receiver string, lat float64, lon float64) (msgToken uint64, err error) {
+	return v.SendMessage(receiver, v.NewLocationMessage(lat, lon))
 }
 
 // SendPublicMessage from public account
